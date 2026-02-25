@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL con pgvector
+  postgres:
+    image: pgvector/pgvector:pg15
+    container_name: myspot-postgres
+    environment:
+      POSTGRES_USER: myspot
+      POSTGRES_PASSWORD: myspot_password
+      POSTGRES_DB: myspot_development
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myspot"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis para ActionCable y Sidekiq
+  redis:
+    image: redis:7-alpine
+    container_name: myspot-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # MySpot Core (Rails 8)
+  myspot:
+    build: .
+    container_name: myspot-rails
+    command: bundle exec rails server -b 0.0.0.0
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: postgres
+      DB_USERNAME: myspot
+      DB_PASSWORD: myspot_password
+      REDIS_URL: redis://redis:6379
+      OLLAMA_URL: http://host.docker.internal:11434
+      OPENCLAW_URL: http://host.docker.internal:3001
+      OPENCLAW_API_KEY: myspot_secret_key
+      RAILS_ENV: development
+    volumes:
+      - .:/app
+      - ollama-cache:/root/.ollama
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # OpenClaw Lite (Node.js)
+  openclaw-lite:
+    image: node:22-alpine
+    container_name: myspot-openclaw
+    working_dir: /app
+    command: sh -c "npm install && npm run gateway start"
+    ports:
+      - "3001:3001"
+    environment:
+      MYSPOT_ENABLED: "true"
+      MYSPOT_API_URL: "http://myspot:3000"
+      MYSPOT_API_KEY: "myspot_secret_key"
+      DEFAULT_MODEL: "minimax/MiniMax-M2.5"
+    volumes:
+      - ../openclaw:/app  # Montar desde el directorio de OpenClaw
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  postgres_data:
+  redis_data:
+  ollama-cache:
