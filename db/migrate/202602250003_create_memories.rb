@@ -1,0 +1,18 @@
+class CreateMemories < ActiveRecord::Migration[7.2]
+  def change
+    create_table :memories, id: :uuid do |t|
+      t.references :agent, type: :uuid, null: false, foreign_key: true
+      t.references :session, type: :uuid, foreign_key: true
+      t.text :content, null: false
+      t.string :memory_type, default: 'short'
+      t.integer :importance, default: 1
+      t.jsonb :tags, default: []
+      t.column :embedding, 'vector(1536)'
+      t.timestamps
+    end
+
+    add_index :memories, :agent_id
+    add_index :memories, :memory_type
+    add_index :memories, :importance
+  end
+end

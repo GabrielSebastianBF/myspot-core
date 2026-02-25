@@ -1,0 +1,19 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: <%= ENV.fetch("DB_HOST") { "localhost" } %>
+  username: <%= ENV.fetch("DB_USERNAME") { "myspot" } %>
+  password: <%= ENV.fetch("DB_PASSWORD") { "" } %>
+
+development:
+  <<: *default
+  database: myspot_development
+
+test:
+  <<: *default
+  database: myspot_test
+
+production:
+  <<: *default
+  database: myspot_production
