@@ -1,141 +1,145 @@
 # MySpot Core
 
-Fork funcional de OpenClaw - Núcleo en **Ruby on Rails 8** para el producto MySpot.
-
-##quick Start (Docker)
-
-La forma más fácil de levantar todo:
-
-```bash
-# 1. Clonar y entrar
-git clone https://github.com/GabrielSebastianBF/myspot-core.git
-cd myspot-core
-
-# 2. Iniciar todo (PostgreSQL + Redis + Rails + OpenClaw)
-docker-compose up -d
-
-# 3. Setup base de datos
-docker-compose exec myspot rails db:create db:migrate
-docker-compose exec myspot rails db:seed
-```
-
-## Desarrollo Local (Sin Docker)
-
-### Requisitos
-
-- Ruby >= 3.2
-- PostgreSQL 15+ con extensión **pgvector**
-- Redis (para ActionCable y Sidekiq)
-- Node.js (para imports y assets)
-- **Ollama** ejecutándose en puerto 11434
-
-### Setup
-
-```bash
-# 1. Clonar el repositorio
-git clone https://github.com/GabrielSebastianBF/myspot-core.git
-cd myspot-core
-
-# 2. Instalar dependencias
-bundle install
-
-# 3. Asegúrate que Ollama esté corriendo
-ollama serve
-ollama pull nomic-embed-text
-
-# 4. Configurar PostgreSQL con pgvector
-# brew install postgresql@15
-# psql -c "CREATE EXTENSION IF NOT EXISTS vector;" tu_db
-
-# 5. Configurar variables de entorno
-cp .env.example .env
-# Editar .env con tus credenciales
-
-# 6. Crear base de datos
-rails db:create db:migrate
-
-# 7. Semillas (datos iniciales)
-rails db:seed
-
-# 8. Iniciar servidor
-rails server
-```
-
-## Ollama (Embeddings Locales)
-
-```bash
-# Verificar que esté corriendo
-ollama list
-
-# Descargar modelo de embedding (una vez)
-ollama pull nomic-embed-text
-
-# El modelo ocupa ~500MB en RAM
-```
-
-## Variables de Entorno
-
-| Variable | Descripción | Default |
-|----------|-------------|---------|
-| DB_HOST | Host de PostgreSQL | localhost |
-| DB_USERNAME | Usuario de PostgreSQL | myspot |
-| DB_PASSWORD | Password de PostgreSQL | - |
-| OLLAMA_URL | URL de Ollama | http://localhost:11434 |
-| OLLAMA_EMBED_MODEL | Modelo de embedding | nomic-embed-text |
-| OPENCLAW_URL | URL del servicio OpenClaw Lite | http://localhost:3001 |
-| OPENCLAW_API_KEY | API Key para OpenClaw | - |
-| REDIS_URL | URL de Redis | redis://localhost:6379 |
+Fork funcional de OpenClaw - Producto completo de **MySpot** para ITLab.
 
 ## Arquitectura
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    MySpot Core (Rails 8)                      │
-│  ┌─────────────┐  ┌──────────────┐  ┌──────────────────┐   │
-│  │  Web UI     │  │  API Layer   │  │  Memory Engine   │   │
-│  │  (Dash)    │  │  (REST/WS)   │  │  (PostgreSQL)    │   │
-│  └─────────────┘  └──────────────┘  └──────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼ (WebSocket/API)
-┌─────────────────────────────────────────────────────────────┐
-│              OpenClaw Lite (Motor Node.js)                   │
-│  ┌─────────────┐  ┌──────────────┐  ┌──────────────────┐   │
-│  │  Gateway    │  │  Tool        │  │  LLM Connector   │   │
-│  │  (Orquest)  │  │  Executor    │  │  (OpenRouter)    │   │
-│  └─────────────┘  └──────────────┘  └──────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-                         Ollama (Embeddings)
+┌─────────────────────────────────────────────────────────────────┐
+│                         MySpot Core (Rails 8)                    │
+│    Web UI + API + Memory Engine + Tool Proxy + HITL            │
+└─────────────────────────────────────────────────────────────────┘
+                              ↕ API / WebSocket
+┌─────────────────────────────────────────────────────────────────┐
+│                    MySpot Gateway (Node.js)                     │
+│  ┌──────────┐  ┌──────────┐  ┌────────────┐  ┌─────────────┐ │
+│  │ Telegram │  │Heartbeat │  │    Cron    │  │  Tools      │ │
+│  │ Channel  │  │ Monitor  │  │  (Jobs)    │  │  Executor   │ │
+│  └──────────┘  └──────────┘  └────────────┘  └─────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+                              ↕
+                    ┌──────────────────┐
+                    │   OpenRouter     │
+                    │  (MiniMax/Gemini)│
+                    └──────────────────┘
+                              ↕
+┌─────────────────────────────────────────────────────────────────┐
+│              Ollama (Embeddings Local)                          │
+│         nomic-embed-text (~500MB, SIN COSTO)                   │
+└─────────────────────────────────────────────────────────────────┘
 ```
+
+##quick Start (Docker Compose)
+
+```bash
+# 1. Clonar
+git clone https://github.com/GabrielSebastianBF/myspot-core.git
+cd myspot-core
+
+# 2. Iniciar todo
+docker-compose up -d
+
+# 3. Esperar que Ollama descargue el modelo (primera vez)
+# Ver logs: docker-compose logs -f ollama
+
+# 4. Setup base de datos
+docker-compose exec myspot rails db:create db:migrate
+docker-compose exec myspot rails db:seed
+```
+
+## Servicios
+
+| Servicio | Puerto | Descripción |
+|----------|--------|-------------|
+| MySpot Core (Rails) | 3000 | API, Web UI, Memoria |
+| MySpot Gateway | 3001 | Gateway de OpenClaw modificado |
+| PostgreSQL | 5432 | Base de datos + pgvector |
+| Redis | 6379 | Cache, Jobs, WebSocket |
+| Ollama | 11434 | Embeddings locales |
+
+## Variables de Entorno
+
+### MySpot Core
+```bash
+DB_HOST=postgres
+DB_USERNAME=myspot
+DB_PASSWORD=***
+OLLAMA_URL=http://ollama:11434
+OLLAMA_EMBED_MODEL=nomic-embed-text
+MYSPOT_API_KEY=myspot_secret_key
+```
+
+### MySpot Gateway
+```bash
+MYSPOT_MODE=true
+MYSPOT_NAME=myspot
+MYSPOT_API_URL=http://myspot:3000
+DEFAULT_MODEL=minimax/MiniMax-M2.5
+
+# Features
+HEARTBEAT_ENABLED=true   # ✅ Monitoreo activo
+CRON_ENABLED=true        # ✅ Jobs programados
+CHANNELS_TELEGRAM_ENABLED=true
+
+# Desactivados
+NODES_ENABLED=false
+CANVAS_ENABLED=false
+A2UI_ENABLED=false
+```
+
+## Ollama - Embeddings Locales
+
+```bash
+# Ver estado
+docker-compose logs -f ollama
+
+# Ver modelos descargados
+docker-compose exec ollama ollama list
+
+# Modelo: nomic-embed-text (~500MB RAM)
+```
+
+**Costo:** $0 - Sin APIs externas para embeddings
+
+## Heartbeats y Cron
+
+Los **heartbeats** y jobs programados **se mantienen en el Gateway** (Node.js):
+
+- `HEARTBEAT_ENABLED=true` - Monitoreo proactivo
+- `CRON_ENABLED=true` - Tareas programadas
+
+**Implementación en Ruby** (Sidekiq) queda para fase posterior si se necesita más control.
 
 ## API Endpoints
 
 - `POST /api/agents` - Crear agente
-- `GET /api/agents/:id` - Ver agente
-- `POST /api/agents/:id/chat` - Enviar mensaje
-- `GET /api/agents/:id/memories` - Ver memorias
+- `POST /api/agents/:id/chat` - Chat
+- `GET /api/agents/:id/memories` - Memorias
 - `POST /api/tools/:id/execute` - Ejecutar herramienta
-- `POST /api/tools/:id/approve` - Aprobar ejecución (HITL)
-- `WS /cable` - WebSocket para chat en tiempo real
+- `POST /api/tools/:id/approve` - Aprobar (HITL)
+- `WS /cable` - WebSocket
 
-## WebSocket (JavaScript Client)
+## Desarrollo Local
 
-```javascript
-const cable = ActionCable.createConsumer('ws://localhost:3000/cable');
-const channel = cable.subscriptions.create('AgentChannel', {
-  agent_id: 'uuid-del-agente'
-});
+```bash
+# Instalar dependencias
+bundle install
 
-channel.on('message', (data) => {
-  console.log('Nueva respuesta:', data.message);
-});
+# PostgreSQL con pgvector
+brew install postgresql@15
+psql -c "CREATE EXTENSION IF NOT EXISTS vector;"
 
-// Enviar mensaje
-channel.perform('chat', { message: 'Hola Spot' });
+# Ollama
+curl -fsSL https://ollama.com/install.sh | sh
+ollama serve
+ollama pull nomic-embed-text
+
+# Iniciar
+cp .env.example .env
+rails db:create db:migrate db:seed
+rails server
 ```
 
 ## Licencia
 
-MIT
+MIT - ITLab 2026
