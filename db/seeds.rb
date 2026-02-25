@@ -103,6 +103,8 @@ tools.each do |tool_data|
 end
 
 # 3. Crear memorias iniciales de Spot sobre Gabriel
+# NOTA: Sin API de embeddings configurada, no se generan vectores
+# La búsqueda usará full-text de PostgreSQL
 memories_data = [
   {
     content: "Gabriel Bustos (Lemut) is the owner. He's a Solutions Architect, Full Stack Developer and UX/UI expert from Chile. He's married to Loreto and has a son Ignacio (27, doctor).",
@@ -145,3 +147,4 @@ puts "\n🎉 Seed completed!"
 puts "   Agent: #{spot.name}"
 puts "   Tools: #{Tool.count}"
 puts "   Memories: #{Memory.count}"
+puts "\n📝 Nota: Para embeddings, configura OPENROUTER_API_KEY en .env"
