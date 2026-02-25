@@ -2,39 +2,56 @@
 
 class MemoryService
   # Servicio para gestionar memorias
-  # Usa búsqueda semántica cuando hay embeddings disponibles (VoyageAI via OpenRouter)
-  # Sin API de embeddings, usa búsqueda por texto/full-text
+  # Usa Ollama local para embeddings (gratis, sin tokens)
+  # Fallback: búsqueda full-text de PostgreSQL
   
+  OLLAMA_URL = ENV.fetch('OLLAMA_URL', 'http://localhost:11434')
+  OLLAMA_EMBED_MODEL = ENV.fetch('OLLAMA_EMBED_MODEL', 'nomic-embed-text')
+
   def initialize(agent:)
     @agent = agent
   end
 
-  # Crear embedding usando VoyageAI (OpenRouter) si está disponible
-  # Si no hay API, retorna nil y usa búsqueda full-text
+  # Crear embedding usando Ollama local
+  # Modelo: nomic-embed-text (768 dimensiones)
   def create_embedding(text)
-    api_key = ENV.fetch('OPENROUTER_API_KEY', nil)
-    return nil unless api_key
-
     begin
-      uri = URI.parse('https://openrouter.ai/api/v1/embeddings')
+      uri = URI.parse("#{OLLAMA_URL}/api/embeddings")
       http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true
-
+      
       request = Net::HTTP::Post.new(uri)
-      request['Authorization'] = "Bearer #{api_key}"
       request['Content-Type'] = 'application/json'
       request.body = {
-        model: 'voyageai/voyage-3',
-        input: text
+        model: OLLAMA_EMBED_MODEL,
+        prompt: text
       }.to_json
 
       response = http.request(request)
-      data = JSON.parse(response.body)
       
-      data.dig('data', 0, 'embedding')
+      if response.code == '200'
+        data = JSON.parse(response.body)
+        data['embedding']
+      else
+        Rails.logger.warn "Ollama embedding failed: #{response.code}"
+        nil
+      end
     rescue => e
-      Rails.logger.warn "Embedding failed: #{e.message}"
+      Rails.logger.warn "Ollama unavailable: #{e.message}"
       nil
+    end
+  end
+
+  # Verificar si Ollama está disponible
+  def ollama_available?
+    begin
+      uri = URI.parse("#{OLLAMA_URL}/api/tags")
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.open_timeout = 2
+      http.read_timeout = 2
+      response = http.get(uri.path)
+      response.code == '200'
+    rescue
+      false
     end
   end
 
@@ -45,17 +62,16 @@ class MemoryService
     memories = Memory.where(agent: @agent)
     memories = memories.where(memory_type: memory_types) if memory_types.present?
 
-    # Intentar embedding si hay API
+    # Intentar embedding con Ollama
     query_embedding = create_embedding(query)
     
     if query_embedding
       # Búsqueda vectorial (pgvector)
-      # Similitud coseno: embedding <=> query_embedding
       emb_str = query_embedding.to_s.gsub('[', '(').gsub(']', ')')
       memories = memories.where.not(embedding: nil)
         .order("embedding <=> #{emb_str}")
     else
-      # Fallback: búsqueda por contenido
+      # Fallback: búsqueda full-text
       search_term = "%#{query}%"
       memories = memories.where("content ILIKE ?", search_term)
     end
@@ -64,7 +80,7 @@ class MemoryService
   end
 
   # Agregar nueva memoria
-  # Si hay API, genera embedding automáticamente
+  # Genera embedding automáticamente con Ollama
   def store(content, memory_type: :short, importance: 1, tags: [], session: nil)
     embedding = create_embedding(content)
     
@@ -102,8 +118,8 @@ class MemoryService
     context_parts << recent.map { |m| "- #{m.content}" }.join("\n")
     
     # 2. Memoria a largo plazo importante
-    important = @      .where(magent.memories
-emory_type: :long)
+    important = @agent.memories
+      .where(memory_type: :long)
       .where('importance >= ?', 2)
       .order(importance: :desc)
       .limit(20)
