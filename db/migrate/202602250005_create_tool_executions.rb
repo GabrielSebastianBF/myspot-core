@@ -1,4 +1,4 @@
-class CreateToolExecutions < ActiveRecord::Migration[7.2]
+class CreateToolExecutions < ActiveRecord::Migration[8.0]
   def change
     create_table :tool_executions, id: :uuid do |t|
       t.references :session, type: :uuid, foreign_key: true

@@ -5,6 +5,8 @@ Rails.application.configure do
   config.eager_load = false
   config.consider_all_requests_local = true
   config.server_timing = true
+  config.bootcamping = true     # Rails 8 feature
+  config.dev_sessions = true  # Rails 8 feature
 
   if Rails.root.join("tmp/caching-dev.txt").exist?
     config.cache_store = :memory_store

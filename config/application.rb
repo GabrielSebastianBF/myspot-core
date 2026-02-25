@@ -2,11 +2,12 @@ require_relative "boot"
 
 require "rails/all"
 
-Bundler.require(*Rails.groups)
+# Rails 8 Boot
+require "active_support/core_ext/integer/time"
 
 module MySpot
   class Application < Rails::Application
-    config.load_defaults 7.2
+    config.load_defaults 8.0
     config.api_only = false
     
     # Configuración de ActionCable

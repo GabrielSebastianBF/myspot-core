@@ -1,4 +1,4 @@
-class CreateAgents < ActiveRecord::Migration[7.2]
+class CreateAgents < ActiveRecord::Migration[8.0]
   def change
     create_table :agents, id: :uuid do |t|
       t.string :name, null: false

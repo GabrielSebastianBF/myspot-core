@@ -2,8 +2,8 @@ require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
   config.enable_reloading = false
-  config.eager_load = false
-  config.consider_all_requests_local = true
+  config.eager_load = ENV["CI"].present?
+  config.consider_all_requests_local = false
   config.public_file_server.enabled = true
   config.log_level = :info
   config.log_tags = [ :request_id ]
@@ -15,4 +15,10 @@ Rails.application.configure do
   config.active_record.migration_error = :page_load
   config.active_record.verbose_query_logs = true
   config.action_cable.disable_request_forgery_protection = true
+  
+  # Rails 8 production settings
+  config.active_support.report_deprecations = false
+  config.logger = ActiveSupport::Logger.new(STDOUT)
+    .tap  { |logger| logger.formatter = ::Logger::Formatter.new }
+    .then { |logger| ActiveSupport::TaggedLogging.new(logger) }
 end

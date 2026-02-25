@@ -1,4 +1,4 @@
-class CreateSessions < ActiveRecord::Migration[7.2]
+class CreateSessions < ActiveRecord::Migration[8.0]
   def change
     create_table :sessions, id: :uuid do |t|
       t.references :agent, type: :uuid, null: false, foreign_key: true
