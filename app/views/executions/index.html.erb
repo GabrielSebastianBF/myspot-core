@@ -1,0 +1,61 @@
+<% content_for :title, "Ejecuciones" %>
+
+<div class="card">
+  <div class="card-title">Historial de Ejecución de Herramientas</div>
+  
+  <% if @executions.any? { |e| e.pending? } %>
+    <div class="card" style="background: rgba(245, 158, 11, 0.1); border-color: var(--warning);">
+      <div class="card-title" style="color: var(--warning);">
+        ⚠️ <%= @executions.count { |e| e.pending? }} Pendientes de Aprobación
+      </div>
+    </div>
+  <% end %>
+  
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Estado</th>
+        <th>Herramienta</th>
+        <th>Argumentos</th>
+        <th>Aprobado por</th>
+        <th>Fecha</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @executions.each do |execution| %>
+        <tr>
+          <td>
+            <span class="pill pill-<%= 
+              case execution.status
+              when 'executed' then 'success'
+              when 'approved' then 'success'
+              when 'pending' then 'warning'
+              when 'rejected' then 'danger'
+              when 'failed' then 'danger'
+              end
+            %>">
+              <%= execution.status %>
+            </span>
+          </td>
+          <td><code><%= execution.tool_name %></code></td>
+          <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
+            <%= execution.args.to_json %>
+          </td>
+          <td><%= execution.approved_by || '-' %></td>
+          <td><%= execution.created_at.strftime("%d/%m %H:%M") %></td>
+          <td>
+            <% if execution.pending? %>
+              <button class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                Aprobar
+              </button>
+              <button class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                Rechazar
+              </button>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

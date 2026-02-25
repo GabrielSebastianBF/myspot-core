@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "application": "./app/javascript/application.js",
+    "actioncable": "https://esm.sh/@actionCable/actioncable@7.1.0"
+  }
+}

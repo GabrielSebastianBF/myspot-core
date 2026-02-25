@@ -1,0 +1,85 @@
+<% content_for :title, "Dashboard" %>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-value"><%= @agents.count %></div>
+    <div class="stat-label">Agentes Activos</div>
+  </div>
+  
+  <div class="stat-card">
+    <div class="stat-value"><%= @sessions_today %></div>
+    <div class="stat-label">Conversaciones Hoy</div>
+  </div>
+  
+  <div class="stat-card">
+    <div class="stat-value"><%= @memories_count %></div>
+    <div class="stat-label">Memorias Totales</div>
+  </div>
+  
+  <div class="stat-card">
+    <div class="stat-value"><%= @pending_executions %></div>
+    <div class="stat-label">Pendientes de Aprobación</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Agentes</div>
+  
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Rol</th>
+        <th>Modelo</th>
+        <th>Estado</th>
+        <th>Creador</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @agents.each do |agent| %>
+        <tr>
+          <td><strong><%= agent.name %></strong></td>
+          <td><span class="pill pill-<%= agent.role == 'assistant' ? 'success' : 'warning' %>"><%= agent.role %></span></td>
+          <td><code><%= agent.model_preferred %></code></td>
+          <td>
+            <% if agent.active %>
+              <span class="pill pill-success">● Activo</span>
+            <% else %>
+              <span class="pill pill-danger">Inactivo</span>
+            <% end %>
+          </td>
+          <td><%= agent.created_at.strftime("%d/%m/%Y") %></td>
+        </tr>
+      <% end %>
+      
+      <% if @agents.empty? %>
+        <tr>
+          <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+            No hay agentes configurados. Ejecuta <code>rails db:seed</code>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <div class="card-title">Actividad Reciente</div>
+  
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+    <div>
+      <div style="color: var(--text-muted); font-size: 0.875rem;">Esta Semana</div>
+      <div style="font-size: 1.5rem; font-weight: 600;"><%= @sessions_week %> sesiones</div>
+    </div>
+    <div>
+      <div style="color: var(--text-muted); font-size: 0.875rem;">Última Actividad</div>
+      <div style="font-size: 1.5rem; font-weight: 600;">
+        <% if Session.last %>
+          <%= time_ago_in_words(Session.last.created_at) %> atrás
+        <% else %>
+          -
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

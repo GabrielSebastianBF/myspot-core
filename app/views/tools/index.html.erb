@@ -1,0 +1,34 @@
+<% content_for :title, "Herramientas" %>
+
+<div class="card">
+  <div class="card-title">Herramientas Disponibles (Whitelist)</div>
+  
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Descripción</th>
+        <th>Roles Permitidos</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @tools.each do |tool| %>
+        <tr>
+          <td><code><%= tool.name %></code></td>
+          <td><%= tool.description %></td>
+          <td>
+            <% tool.allowed_roles.each do |role| %>
+              <span class="pill pill-warning"><%= role %></span>
+            <% end %>
+          </td>
+          <td>
+            <span class="pill pill-<%= tool.enabled ? 'success' : 'danger' %>">
+              <%= tool.enabled ? 'Habilitada' : 'Deshabilitada' %>
+            </span>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

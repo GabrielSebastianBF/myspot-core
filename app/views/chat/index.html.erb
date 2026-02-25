@@ -1,0 +1,65 @@
+<% content_for :title, "Chat con #{@agent.name}" %>
+
+<div class="chat-container card">
+  <div class="chat-messages" id="messages">
+    <div class="message message-agent">
+      <strong>🐕 <%= @agent.name %>:</strong><br>
+      ¡Hola! Soy <%= @agent.name %>, tu asistente de ITLab. ¿En qué puedo ayudarte hoy?
+    </div>
+  </div>
+  
+  <div class="chat-input-container">
+    <input 
+      type="text" 
+      class="form-input chat-input" 
+      id="message-input"
+      placeholder="Escribe tu mensaje..."
+      autocomplete="off"
+    >
+    <button class="btn btn-primary" id="send-btn">Enviar</button>
+  </div>
+</div>
+
+<script>
+  const agentId = '<%= @agent.id %>';
+  const messagesDiv = document.getElementById('messages');
+  const input = document.getElement-input');
+  constById('message sendBtn = document.getElementById('send-btn');
+
+  // Conectar WebSocket
+  const cable = ActionCable.createConsumer('ws://' + window.location.host + '/cable');
+  
+  const chatChannel = cable.subscriptions.create('AgentChannel', {
+    agent_id: agentId
+  }, {
+    received: function(data) {
+      addMessage(data.message, 'agent');
+    }
+  });
+
+  function addMessage(text, sender) {
+    const div = document.createElement('div');
+    div.className = `message message-${sender}`;
+    div.innerHTML = `<strong>${sender === 'user' ? '👤 Tú:' : '🐕 ' + agentId + ':'}</strong><br>${text}`;
+    messagesDiv.appendChild(div);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
+
+  function sendMessage() {
+    const text = input.value.trim();
+    if (!text) return;
+    
+    addMessage(text, 'user');
+    input.value = '';
+    
+    chatChannel.perform('chat', { message: text });
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+  input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  // Scroll to bottom
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+</script>

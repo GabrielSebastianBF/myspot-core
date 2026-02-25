@@ -24,18 +24,20 @@ Rails.application.routes.draw do
       end
     end
     
-    # Endpoint para approvals masivos
     post '/tools/executions/:execution_id/approve', to: 'tools#approve'
     post '/tools/executions/:execution_id/reject', to: 'tools#reject'
   end
 
-  # WebSocket routes para ActionCable
+  # WebSocket
   mount ActionCable.server => '/cable'
   
-  # Canal del agente
-  # Client: ActionCable.connect('/cable', { agent_id: 'uuid' })
-  
-  # Dashboard (placeholder)
+  # UI Routes
   get '/dashboard', to: 'dashboard#index'
+  get '/chat', to: 'chat#index'
+  get '/agents', to: 'agents#index'
+  get '/memories', to: 'memories#index'
+  get '/tools', to: 'tools#index'
+  get '/executions', to: 'executions#index'
+  get '/settings', to: 'settings#index'
   get '/', to: 'dashboard#index'
 end

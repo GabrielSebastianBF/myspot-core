@@ -1,0 +1,32 @@
+<% content_for :title, "Configuración" %>
+
+<div class="card">
+  <div class="card-title">Configuración de MySpot</div>
+  
+  <div class="form-group">
+    <label class="form-label">URL del Gateway</label>
+    <input type="text" class="form-input" value="http://localhost:3001" readonly>
+  </div>
+  
+  <div class="form-group">
+    <label class="form-label">Modelo por Defecto</label>
+    <input type="text" class="form-input" value="minimax/MiniMax-M2.5" readonly>
+  </div>
+  
+  <div class="form-group">
+    <label class="form-label">Ollama URL</label>
+    <input type="text" class="form-input" value="http://localhost:11434" readonly>
+  </div>
+  
+  <div class="form-group">
+    <label class="form-label">Estado de Heartbeat</label>
+    <div>
+      <span class="pill pill-success">● Activo</span>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Peligro</div>
+  <button class="btn btn-danger">Reiniciar Servicios</button>
+</div>

@@ -1,0 +1,39 @@
+<% content_for :title, "Memorias" %>
+
+<div class="card">
+  <div class="card-title">Memorias del Sistema (SCC-HDF)</div>
+  
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Tipo</th>
+        <th>Importancia</th>
+        <th>Contenido</th>
+        <th>Fecha</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @memories.each do |memory| %>
+        <tr>
+          <td>
+            <span class="pill pill-<%= 
+              case memory.memory_type
+              when 'long' then 'success'
+              when 'semantic' then 'warning'
+              when 'episodic' then 'danger'
+              else 'success'
+              end
+            %>">
+              <%= memory.memory_type %>
+            </span>
+          </td>
+          <td><%= memory.importance %>/4</td>
+          <td style="max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            <%= memory.content %>
+          </td>
+          <td><%= memory.created_at.strftime("%d/%m %H:%M") %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
