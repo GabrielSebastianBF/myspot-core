@@ -1,0 +1,70 @@
+<% content_for :title, @agent.name %>
+
+<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h3><%= @agent.name %></h3>
+    <span class="pill pill-<%= @agent.active ? 'success' : 'danger' %>">
+      <%= @agent.active ? 'Activo' : 'Inactivo' %>
+    </span>
+  </div>
+  
+  <table style="margin-top: 1.5rem;">
+    <tr>
+      <td style="padding: 0.75rem; color: var(--text-muted); width: 150px;">ID</td>
+      <td><code style="font-size: 0.75rem;"><%= @agent.id %></code></td>
+    </tr>
+    <tr>
+      <td style="padding: 0.75rem; color: var(--text-muted);">Rol</td>
+      <td><span class="pill pill-warning"><%= @agent.role %></span></td>
+    </tr>
+    <tr>
+      <td style="padding: 0.75rem; color: var(--text-muted);">Modelo</td>
+      <td><code><%= @agent.model_preferred %></code></td>
+    </tr>
+    <tr>
+      <td style="padding: 0.75rem; color: var(--text-muted);">Creado</td>
+      <td><%= @agent.created_at.strftime("%d/%m/%Y %H:%M") %></td>
+    </tr>
+    <tr>
+      <td style="padding: 0.75rem; color: var(--text-muted);">Actualizado</td>
+      <td><%= @agent.updated_at.strftime("%d/%m/%Y %H:%M") %></td>
+    </tr>
+  </table>
+  
+  <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem;">
+    <a href="/agents/<%= @agent.id %>/edit" class="btn btn-primary">Editar</a>
+    <a href="/agents" class="btn" style="background: var(--bg);">Volver</a>
+  </div>
+</div>
+
+<div class="card" style="margin-top: 1rem;">
+  <h4>Configuración (JSON)</h4>
+  <pre style="margin-top: 1rem; padding: 1rem; background: var(--bg); border-radius: 0.5rem; overflow-x: auto; font-size: 0.8rem;"><%= @agent.config.to_json rescue "{}" %></pre>
+</div>
+
+<div class="card" style="margin-top: 1rem;">
+  <h4>Sesiones Recientes</h4>
+  <% sessions = @agent.sessions.order(created_at: :desc).limit(5) %>
+  <% if sessions.any? %>
+    <table style="margin-top: 1rem;">
+      <thead>
+        <tr>
+          <th>Canal</th>
+          <th>Inicio</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% sessions.each do |session| %>
+          <tr>
+            <td><%= session.channel %></td>
+            <td><%= session.created_at.strftime("%d/%m %H:%M") %></td>
+            <td><%= session.ended_at ? 'Cerrada' : 'Activa' %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p style="color: var(--text-muted); margin-top: 1rem;">No hay sesiones.</p>
+  <% end %>
+</div>

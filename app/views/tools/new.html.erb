@@ -1,0 +1,34 @@
+<% content_for :title, "Nueva Herramienta" %>
+
+<div class="card">
+  <h3>Crear Nueva Herramienta</h3>
+  
+  <%= form_with(model: @tool, local: true, style: "margin-top: 1.5rem;") do |f| %>
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Nombre</label>
+      <%= f.text_field :name, class: "form-input", placeholder: "web_search", required: true %>
+    </div>
+    
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Descripción</label>
+      <%= f.text_area :description, class: "form-textarea", placeholder: "Buscar información en la web", rows: 3 %>
+    </div>
+    
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Roles permitidos (separados por coma)</label>
+      <%= f.text_field :allowed_roles, class: "form-input", placeholder: "assistant, admin", value: @tool.allowed_roles.join(", ") %>
+    </div>
+    
+    <div style="margin-bottom: 1rem;">
+      <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <%= f.check_box :enabled %>
+        <span>Habilitada</span>
+      </label>
+    </div>
+    
+    <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+      <%= f.submit "Crear Herramienta", class: "btn btn-primary" %>
+      <a href="/tools" class="btn" style="background: var(--bg); color: var(--text);">Cancelar</a>
+    </div>
+  <% end %>
+</div>

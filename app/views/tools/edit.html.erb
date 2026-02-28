@@ -1,0 +1,40 @@
+<% content_for :title, "Editar Herramienta" %>
+
+<div class="card">
+  <h3>Editar Herramienta</h3>
+  
+  <%= form_with(model: @tool, local: true, style: "margin-top: 1.5rem;") do |f| %>
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Nombre</label>
+      <%= f.text_field :name, class: "form-input", required: true %>
+    </div>
+    
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Descripción</label>
+      <%= f.text_area :description, class: "form-textarea", rows: 3 %>
+    </div>
+    
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Roles permitidos</label>
+      <%= f.text_field :allowed_roles, class: "form-input", value: @tool.allowed_roles.join(", ") %>
+    </div>
+    
+    <div style="margin-bottom: 1rem;">
+      <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <%= f.check_box :enabled %>
+        <span>Habilitada</span>
+      </label>
+    </div>
+    
+    <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+      <%= f.submit "Guardar Cambios", class: "btn btn-primary" %>
+      <a href="/tools" class="btn" style="background: var(--bg); color: var(--text);">Cancelar</a>
+    </div>
+  <% end %>
+  
+  <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+    <%= button_to "Eliminar Herramienta", tool_path(@tool), method: :delete, 
+          class: "btn btn-danger", 
+          data: { confirm: "¿Estás seguro?" } %>
+  </div>
+</div>

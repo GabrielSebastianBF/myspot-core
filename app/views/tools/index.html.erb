@@ -1,22 +1,26 @@
 <% content_for :title, "Herramientas" %>
 
 <div class="card">
-  <div class="card-title">Herramientas Disponibles (Whitelist)</div>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <h3>Herramientas Disponibles</h3>
+    <a href="/tools/new" class="btn btn-primary">+ Nueva Herramienta</a>
+  </div>
   
-  <table class="table">
+  <table style="margin-top: 1rem;">
     <thead>
       <tr>
         <th>Nombre</th>
         <th>Descripción</th>
-        <th>Roles Permitidos</th>
+        <th>Roles</th>
         <th>Estado</th>
+        <th>Acciones</th>
       </tr>
     </thead>
     <tbody>
       <% @tools.each do |tool| %>
         <tr>
           <td><code><%= tool.name %></code></td>
-          <td><%= tool.description %></td>
+          <td><%= tool.description || '-' %></td>
           <td>
             <% tool.allowed_roles.each do |role| %>
               <span class="pill pill-warning"><%= role %></span>
@@ -27,8 +31,18 @@
               <%= tool.enabled ? 'Habilitada' : 'Deshabilitada' %>
             </span>
           </td>
+          <td>
+            <a href="/tools/<%= tool.id %>" class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; background: var(--bg);">Ver</a>
+            <a href="/tools/<%= tool.id %>/edit" class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Editar</a>
+          </td>
         </tr>
       <% end %>
     </tbody>
   </table>
+  
+  <% if @tools.empty? %>
+    <p style="text-align: center; color: var(--text-muted); padding: 2rem;">
+      No hay herramientas configuradas.
+    </p>
+  <% end %>
 </div>

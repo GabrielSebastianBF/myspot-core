@@ -1,4 +1,4 @@
-class EnablePgExtensions < ActiveRecord::Migration[8.0]
+class EnableExtensions < ActiveRecord::Migration[8.0]
   def change
     # Para búsqueda full-text cuando no hay embeddings
     enable_extension 'pg_trgm'

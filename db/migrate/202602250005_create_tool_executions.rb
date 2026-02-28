@@ -10,7 +10,6 @@ class CreateToolExecutions < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :tool_executions, :session_id
     add_index :tool_executions, :tool_name
     add_index :tool_executions, :status
   end

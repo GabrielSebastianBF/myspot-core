@@ -34,3 +34,5 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
+
+gem "bootsnap", "~> 1.23"

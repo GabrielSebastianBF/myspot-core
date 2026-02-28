@@ -1,0 +1,38 @@
+<% content_for :title, "Editar Memoria" %>
+
+<div class="card">
+  <h3>Editar Memoria</h3>
+  
+  <%= form_with(model: @memory, local: true, style: "margin-top: 1.5rem;") do |f| %>
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Contenido</label>
+      <%= f.text_area :content, class: "form-textarea", rows: 4, required: true %>
+    </div>
+    
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Tipo</label>
+      <%= f.select :memory_type, options_for_select([
+        ['Corto plazo (short)', 'short'],
+        ['Largo plazo (long)', 'long'],
+        ['Semántico', 'semantic'],
+        ['Episódico', 'episodic']
+      ], @memory.memory_type), {}, class: "form-input" %>
+    </div>
+    
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Importancia (1-4)</label>
+      <%= f.number_field :importance, class: "form-input", min: 1, max: 4 %>
+    </div>
+    
+    <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+      <%= f.submit "Guardar Cambios", class: "btn btn-primary" %>
+      <a href="/memories" class="btn" style="background: var(--bg); color: var(--text);">Cancelar</a>
+    </div>
+  <% end %>
+  
+  <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+    <%= button_to "Eliminar Memoria", memory_path(@memory), method: :delete, 
+          class: "btn btn-danger", 
+          data: { confirm: "¿Estás seguro?" } %>
+  </div>
+</div>

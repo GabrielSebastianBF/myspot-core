@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MySpot - Login</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #6366f1;
+      --bg: #0f172a;
+      --bg-card: #1e293b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .login-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 2rem;
+      width: 100%;
+      max-width: 400px;
+    }
+    .logo {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 2rem;
+    }
+    .form-input {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      color: var(--text);
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+    .btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .btn:hover { opacity: 0.9; }
+    .alert { 
+      background: rgba(239, 68, 68, 0.2); 
+      border: 1px solid #ef4444; 
+      padding: 0.75rem; 
+      border-radius: 0.5rem; 
+      margin-bottom: 1rem;
+      color: #ef4444;
+    }
+    .notice {
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid #22c55e;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      color: #22c55e;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <div class="logo">🐕 MySpot</div>
+    
+    <% if flash[:alert] %>
+      <div class="alert"><%= flash[:alert] %></div>
+    <% end %>
+    
+    <% if flash[:notice] %>
+      <div class="notice"><%= flash[:notice] %></div>
+    <% end %>
+    
+    <form action="/login" method="post">
+      <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+      
+      <input type="email" name="email" class="form-input" placeholder="Email" required>
+      <input type="password" name="password" class="form-input" placeholder="Contraseña" required>
+      
+      <button type="submit" class="btn">Iniciar Sesión</button>
+    </form>
+    
+    <p style="text-align: center; color: var(--text-muted); margin-top: 1rem; font-size: 0.875rem;">
+      Default: admin@myspot.local / password
+    </p>
+  </div>
+</body>
+</html>

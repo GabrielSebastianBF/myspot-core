@@ -1,0 +1,34 @@
+<% content_for :title, "Nuevo Agente" %>
+
+<div class="card">
+  <h3>Crear Nuevo Agente</h3>
+  
+  <%= form_with(model: @agent, local: true, style: "margin-top: 1.5rem;") do |f| %>
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Nombre</label>
+      <%= f.text_field :name, class: "form-input", placeholder: "Nombre del agente", required: true %>
+    </div>
+    
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Rol</label>
+      <%= f.select :role, options_for_select([['assistant', 'assistant'], ['admin', 'admin'], ['user', 'user']], @agent.role), {}, class: "form-input" %>
+    </div>
+    
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Modelo</label>
+      <%= f.text_field :model_preferred, class: "form-input", placeholder: "minimax/MiniMax-M2.5" %>
+    </div>
+    
+    <div style="margin-bottom: 1rem;">
+      <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <%= f.check_box :active %>
+        <span>Agente activo</span>
+      </label>
+    </div>
+    
+    <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+      <%= f.submit "Crear Agente", class: "btn btn-primary" %>
+      <a href="/agents" class="btn" style="background: var(--bg); color: var(--text);">Cancelar</a>
+    </div>
+  <% end %>
+</div>

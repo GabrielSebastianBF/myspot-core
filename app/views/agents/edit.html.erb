@@ -1,0 +1,40 @@
+<% content_for :title, "Editar Agente" %>
+
+<div class="card">
+  <h3>Editar Agente</h3>
+  
+  <%= form_with(model: @agent, local: true, style: "margin-top: 1.5rem;") do |f| %>
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Nombre</label>
+      <%= f.text_field :name, class: "form-input", required: true %>
+    </div>
+    
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Rol</label>
+      <%= f.select :role, options_for_select([['assistant', 'assistant'], ['admin', 'admin'], ['user', 'user']], @agent.role), {}, class: "form-input" %>
+    </div>
+    
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Modelo</label>
+      <%= f.text_field :model_preferred, class: "form-input" %>
+    </div>
+    
+    <div style="margin-bottom: 1rem;">
+      <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <%= f.check_box :active %>
+        <span>Agente activo</span>
+      </label>
+    </div>
+    
+    <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+      <%= f.submit "Guardar Cambios", class: "btn btn-primary" %>
+      <a href="/agents" class="btn" style="background: var(--bg); color: var(--text);">Cancelar</a>
+    </div>
+  <% end %>
+  
+  <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+    <%= button_to "Eliminar Agente", agent_path(@agent), method: :delete, 
+          class: "btn btn-danger", 
+          data: { confirm: "¿Estás seguro de eliminar este agente?" } %>
+  </div>
+</div>

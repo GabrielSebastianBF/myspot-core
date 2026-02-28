@@ -1,9 +1,12 @@
 <% content_for :title, "Agentes" %>
 
 <div class="card">
-  <div class="card-title">Agentes Configurados</div>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <h3>Agentes Configurados</h3>
+    <a href="/agents/new" class="btn btn-primary">+ Nuevo Agente</a>
+  </div>
   
-  <table class="table">
+  <table style="margin-top: 1rem;">
     <thead>
       <tr>
         <th>Nombre</th>
@@ -17,7 +20,7 @@
       <% @agents.each do |agent| %>
         <tr>
           <td><strong><%= agent.name %></strong></td>
-          <td><%= agent.role %></td>
+          <td><span class="pill pill-warning"><%= agent.role %></span></td>
           <td><code><%= agent.model_preferred %></code></td>
           <td>
             <span class="pill pill-<%= agent.active ? 'success' : 'danger' %>">
@@ -25,10 +28,17 @@
             </span>
           </td>
           <td>
-            <button class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">Editar</button>
+            <a href="/agents/<%= agent.id %>" class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; background: var(--bg);">Ver</a>
+            <a href="/agents/<%= agent.id %>/edit" class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Editar</a>
           </td>
         </tr>
       <% end %>
     </tbody>
   </table>
+  
+  <% if @agents.empty? %>
+    <p style="text-align: center; color: var(--text-muted); padding: 2rem;">
+      No hay agentes configurados.
+    </p>
+  <% end %>
 </div>

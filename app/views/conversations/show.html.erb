@@ -1,0 +1,32 @@
+<% content_for :title, "Conversación" %>
+
+<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h3>Conversación</h3>
+      <p style="color: var(--text-muted); margin-top: 0.5rem;">
+        <%= @session.agent&.name %> • <%= @session.channel %> • <%= @session.created_at.strftime("%d/%m/%Y %H:%M") %>
+      </p>
+    </div>
+    <a href="/sessions" class="btn" style="background: var(--bg);">Volver</a>
+  </div>
+</div>
+
+<div class="card" style="margin-top: 1rem;">
+  <h4>Mensajes</h4>
+  
+  <div style="margin-top: 1rem;">
+    <% @messages.each do |message| %>
+      <div style="margin-bottom: 1rem; padding: 1rem; background: <%= message.role == 'user' ? 'var(--primary)' : 'var(--bg)' %>; border-radius: 0.5rem; <%= message.role == 'user' ? '' : 'border: 1px solid var(--border);' %>">
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+          <%= message.role == 'user' ? '👤 Usuario' : '🐕 Asistente' %> • <%= message.created_at.strftime("%H:%M") %>
+        </div>
+        <div><%= message.content %></div>
+      </div>
+    <% end %>
+    
+    <% if @messages.empty? %>
+      <p style="color: var(--text-muted); text-align: center;">Sin mensajes.</p>
+    <% end %>
+  </div>
+</div>

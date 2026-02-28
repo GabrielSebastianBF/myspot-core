@@ -1,32 +1,99 @@
 <% content_for :title, "Configuración" %>
 
-<div class="card">
-  <div class="card-title">Configuración de MySpot</div>
-  
-  <div class="form-group">
-    <label class="form-label">URL del Gateway</label>
-    <input type="text" class="form-input" value="http://localhost:3001" readonly>
-  </div>
-  
-  <div class="form-group">
-    <label class="form-label">Modelo por Defecto</label>
-    <input type="text" class="form-input" value="minimax/MiniMax-M2.5" readonly>
-  </div>
-  
-  <div class="form-group">
-    <label class="form-label">Ollama URL</label>
-    <input type="text" class="form-input" value="http://localhost:11434" readonly>
-  </div>
-  
-  <div class="form-group">
-    <label class="form-label">Estado de Heartbeat</label>
-    <div>
-      <span class="pill pill-success">● Activo</span>
-    </div>
-  </div>
+<% if notice %>
+<div style="background: rgba(34, 197, 94, 0.2); border: 1px solid var(--success); padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+  <%= notice %>
 </div>
+<% end %>
 
 <div class="card">
-  <div class="card-title">Peligro</div>
-  <button class="btn btn-danger">Reiniciar Servicios</button>
+  <h3>Configuración de MySpot</h3>
+  
+  <div style="margin-top: 1.5rem;">
+    <h4>Agente Principal</h4>
+    <% if @agent %>
+      <table style="margin-top: 1rem;">
+        <tr>
+          <td style="padding: 0.5rem; color: var(--text-muted);">Nombre:</td>
+          <td><strong><%= @agent.name %></strong></td>
+        </tr>
+        <tr>
+          <td style="padding: 0.5rem; color: var(--text-muted);">Rol:</td>
+          <td><span class="pill pill-warning"><%= @agent.role %></span></td>
+        </tr>
+        <tr>
+          <td style="padding: 0.5rem; color: var(--text-muted);">Modelo:</td>
+          <td><code><%= @agent.model_preferred %></code></td>
+        </tr>
+        <tr>
+          <td style="padding: 0.5rem; color: var(--text-muted);">Estado:</td>
+          <td><span class="pill pill-<%= @agent.active ? 'success' : 'danger' %>"><%= @agent.active ? 'Activo' : 'Inactivo' %></span></td>
+        </tr>
+      </table>
+    <% else %>
+      <p style="color: var(--text-muted);">No hay agente configurado.</p>
+    <% end %>
+  </div>
+  
+  <div style="margin-top: 2rem;">
+    <h4>🔑 API Key (OpenRouter)</h4>
+    <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">
+      Ingresa tu API key de OpenRouter para habilitar el chat con IA.
+    </p>
+    
+    <form action="/settings" method="post" style="margin-top: 1rem;">
+      <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+      
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">API Key</label>
+        <input type="password" name="api_key" class="form-input" placeholder="sk-..." style="font-family: monospace;">
+      </div>
+      
+      <button type="submit" class="btn btn-primary">Guardar API Key</button>
+    </form>
+    
+    <p style="color: var(--text-muted); font-size: 0.75rem; margin-top: 1rem;">
+      Modelos disponibles: minimax/MiniMax-M2.5, openai/gpt-4o, anthropic/claude-3.5-sonnet, x-ai/grok-4.1-fast
+    </p>
+  </div>
+  
+  <div style="margin-top: 2rem;">
+    <h4>Servicios</h4>
+    <table style="margin-top: 1rem;">
+      <tr>
+        <td style="padding: 0.5rem;">PostgreSQL</td>
+        <td><span class="pill pill-success">● Conectado</span></td>
+      </tr>
+      <tr>
+        <td style="padding: 0.5rem;">Redis</td>
+        <td><span class="pill pill-success">● Conectado</span></td>
+      </tr>
+      <tr>
+        <td style="padding: 0.5rem;">Ollama</td>
+        <td><span class="pill pill-success">● Activo</span></td>
+      </tr>
+      <tr>
+        <td style="padding: 0.5rem;">LLM (API)</td>
+        <td><span class="pill pill-<%= ENV['OPENROUTER_API_KEY'].present? ? 'success' : 'warning' %>">● <%= ENV['OPENROUTER_API_KEY'].present? ? 'Configurado' : 'No configurado' %></span></td>
+      </tr>
+    </table>
+  </div>
+  
+  <div style="margin-top: 2rem;">
+    <h4>Información del Sistema</h4>
+    <table style="margin-top: 1rem;">
+      <tr>
+        <td style="padding: 0.5rem; color: var(--text-muted);">Versión Rails:</td>
+        <td>8.0.4</td>
+      </tr>
+      <tr>
+        <td style="padding: 0.5rem; color: var(--text-muted);">Puerto:</td>
+        <td>3000</td>
+      </tr>
+      <tr>
+        <td style="padding: 0.5rem; color: var(--text-muted);">Entorno:</td>
+        <td>development</td>
+      </tr>
+    </table>
+  </div>
 </div>

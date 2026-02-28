@@ -1,0 +1,38 @@
+<% content_for :title, @tool.name %>
+
+<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h3><code><%= @tool.name %></code></h3>
+    <span class="pill pill-<%= @tool.enabled ? 'success' : 'danger' %>">
+      <%= @tool.enabled ? 'Habilitada' : 'Deshabilitada' %>
+    </span>
+  </div>
+  
+  <table style="margin-top: 1.5rem;">
+    <tr>
+      <td style="padding: 0.75rem; color: var(--text-muted); width: 150px;">ID</td>
+      <td><code style="font-size: 0.75rem;"><%= @tool.id %></code></td>
+    </tr>
+    <tr>
+      <td style="padding: 0.75rem; color: var(--text-muted);">Descripción</td>
+      <td><%= @tool.description || 'Sin descripción' %></td>
+    </tr>
+    <tr>
+      <td style="padding: 0.75rem; color: var(--text-muted);">Roles permitidos</td>
+      <td>
+        <% @tool.allowed_roles.each do |role| %>
+          <span class="pill pill-warning"><%= role %></span>
+        <% end %>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 0.75rem; color: var(--text-muted);">Creado</td>
+      <td><%= @tool.created_at.strftime("%d/%m/%Y %H:%M") %></td>
+    </tr>
+  </table>
+  
+  <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem;">
+    <a href="/tools/<%= @tool.id %>/edit" class="btn btn-primary">Editar</a>
+    <a href="/tools" class="btn" style="background: var(--bg);">Volver</a>
+  </div>
+</div>

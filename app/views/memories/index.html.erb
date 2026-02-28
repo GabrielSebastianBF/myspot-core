@@ -1,15 +1,19 @@
 <% content_for :title, "Memorias" %>
 
 <div class="card">
-  <div class="card-title">Memorias del Sistema (SCC-HDF)</div>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <h3>Memorias del Sistema (SCC-HDF)</h3>
+    <a href="/memories/new" class="btn btn-primary">+ Nueva Memoria</a>
+  </div>
   
-  <table class="table">
+  <table style="margin-top: 1rem;">
     <thead>
       <tr>
         <th>Tipo</th>
         <th>Importancia</th>
         <th>Contenido</th>
         <th>Fecha</th>
+        <th>Acciones</th>
       </tr>
     </thead>
     <tbody>
@@ -28,12 +32,32 @@
             </span>
           </td>
           <td><%= memory.importance %>/4</td>
-          <td style="max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+          <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
             <%= memory.content %>
           </td>
           <td><%= memory.created_at.strftime("%d/%m %H:%M") %></td>
+          <td>
+            <a href="/memories/<%= memory.id %>/edit" class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Editar</a>
+          </td>
         </tr>
       <% end %>
     </tbody>
   </table>
+  
+  <% if @memories.empty? %>
+    <p style="text-align: center; color: var(--text-muted); padding: 2rem;">
+      No hay memorias.
+    </p>
+  <% end %>
+</div>
+
+<div class="card" style="margin-top: 1rem;">
+  <h4>🔍 Buscar en Memorias</h4>
+  <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">
+    <% if OllamaService.available? %>
+      <span class="pill pill-success">● Ollama conectado</span> - Búsqueda semántica disponible
+    <% else %>
+      <span class="pill pill-warning">● Ollama no disponible</span> - Configura Ollama para búsqueda semántica
+    <% end %>
+  </p>
 </div>

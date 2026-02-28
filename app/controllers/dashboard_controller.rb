@@ -1,4 +1,5 @@
 class DashboardController < ApplicationController
+  #before_action :require_login
   def index
     @agents = Agent.all
     @sessions_today = Session.where("created_at >= ?", Date.today).count

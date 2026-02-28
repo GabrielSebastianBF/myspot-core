@@ -1,0 +1,44 @@
+<% content_for :title, "Conversaciones" %>
+
+<div class="card">
+  <h3>Historial de Conversaciones</h3>
+  
+  <table style="margin-top: 1rem;">
+    <thead>
+      <tr>
+        <th>Agente</th>
+        <th>Canal</th>
+        <th>Inicio</th>
+        <th>Estado</th>
+        <th>Mensajes</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @sessions.each do |session| %>
+        <tr>
+          <td><%= session.agent&.name || 'Sin agente' %></td>
+          <td><span class="pill pill-warning"><%= session.channel %></span></td>
+          <td><%= session.created_at.strftime("%d/%m %H:%M") %></td>
+          <td>
+            <% if session.ended_at %>
+              <span class="pill pill-danger">Cerrada</span>
+            <% else %>
+              <span class="pill pill-success">Activa</span>
+            <% end %>
+          </td>
+          <td><%= session.messages.count %></td>
+          <td>
+            <a href="/sessions/<%= session.id %>" class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Ver</a>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  
+  <% if @sessions.empty? %>
+    <p style="text-align: center; color: var(--text-muted); padding: 2rem;">
+      No hay conversaciones.
+    </p>
+  <% end %>
+</div>

@@ -11,7 +11,6 @@ class CreateMemories < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :memories, :agent_id
     add_index :memories, :memory_type
     add_index :memories, :importance
     add_index :memories, :content, using: :gin, opclass: :gin_trgm_ops  # Búsqueda full-text

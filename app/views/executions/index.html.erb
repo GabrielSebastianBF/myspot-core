@@ -1,12 +1,13 @@
 <% content_for :title, "Ejecuciones" %>
 
 <div class="card">
-  <div class="card-title">Historial de Ejecución de Herramientas</div>
+  <div class="card-title">Historial de Ejecución de Herramientas (HITL)</div>
   
-  <% if @executions.any? { |e| e.pending? } %>
+<% pending = @executions.select { |e| e.status == 'pending' } %>
+  <% if pending.any? %>
     <div class="card" style="background: rgba(245, 158, 11, 0.1); border-color: var(--warning);">
       <div class="card-title" style="color: var(--warning);">
-        ⚠️ <%= @executions.count { |e| e.pending? }} Pendientes de Aprobación
+        ⚠️ <%= pending.count %> Pendientes de Aprobación
       </div>
     </div>
   <% end %>
@@ -17,14 +18,13 @@
         <th>Estado</th>
         <th>Herramienta</th>
         <th>Argumentos</th>
-        <th>Aprobado por</th>
         <th>Fecha</th>
         <th>Acciones</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody id="executions-body">
       <% @executions.each do |execution| %>
-        <tr>
+        <tr id="execution-<%= execution.id %>">
           <td>
             <span class="pill pill-<%= 
               case execution.status
@@ -42,20 +42,73 @@
           <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
             <%= execution.args.to_json %>
           </td>
-          <td><%= execution.approved_by || '-' %></td>
           <td><%= execution.created_at.strftime("%d/%m %H:%M") %></td>
           <td>
-            <% if execution.pending? %>
-              <button class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
-                Aprobar
+            <% if execution.status == 'pending' %>
+              <button class="btn btn-success" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; margin-right: 0.25rem;" 
+                onclick="approveExecution('<%= execution.id %>')">
+                ✓ Aprobar
               </button>
-              <button class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
-                Rechazar
+              <button class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" 
+                onclick="rejectExecution('<%= execution.id %>')">
+                ✗ Rechazar
               </button>
+            <% else %>
+              <span style="color: var(--text-muted); font-size: 0.75rem;">
+                <%= execution.status == 'executed' ? '✅ Ejecutado' : '❌ ' + execution.status %>
+              </span>
             <% end %>
           </td>
         </tr>
       <% end %>
     </tbody>
   </table>
+  
+  <% if @executions.empty? %>
+    <p style="text-align: center; color: var(--text-muted); padding: 2rem;">
+      No hay ejecuciones registradas.
+    </p>
+  <% end %>
 </div>
+
+<script>
+  function approveExecution(executionId) {
+    fetch('/api/executions/' + executionId + '/approve', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'executed') {
+        location.reload();
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Error al aprobar');
+    });
+  }
+
+  function rejectExecution(executionId) {
+    if (!confirm('¿Estás seguro de rechazar esta ejecución?')) return;
+    
+    fetch('/api/executions/' + executionId + '/reject', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'rejected') {
+        location.reload();
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Error al rechazar');
+    });
+  }
+</script>

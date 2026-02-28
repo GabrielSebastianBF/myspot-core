@@ -66,6 +66,17 @@ memories_data.each do |mem_data|
   puts "✅ Memory: #{mem_data[:content][0..50]}..."
 end
 
+# 4. Crear usuario administrador
+admin = User.find_or_initialize_by(email: 'admin@myspot.local')
+admin.update!(
+  password: 'password',
+  password_confirmation: 'password',
+  name: 'Admin Spot',
+  role: 'admin',
+  active: true
+)
+puts "✅ Created/Updated admin user: #{admin.email}"
+
 puts "\n🎉 Seed completed!"
 puts "   Agent: #{spot.name}"
 puts "   Tools: #{Tool.count}"

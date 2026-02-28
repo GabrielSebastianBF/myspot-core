@@ -1,4 +1,5 @@
 class ChatController < ApplicationController
+  #before_action :require_login
   before_action :set_agent
 
   def index

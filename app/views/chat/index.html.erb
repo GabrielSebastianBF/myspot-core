@@ -18,29 +18,56 @@
     >
     <button class="btn btn-primary" id="send-btn">Enviar</button>
   </div>
+  
+  <div id="connection-status" style="padding: 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); border-top: 1px solid var(--border);">
+    <span class="pill pill-warning">Conectando...</span>
+  </div>
 </div>
 
 <script>
   const agentId = '<%= @agent.id %>';
   const messagesDiv = document.getElementById('messages');
-  const input = document.getElement-input');
-  constById('message sendBtn = document.getElementById('send-btn');
-
-  // Conectar WebSocket
-  const cable = ActionCable.createConsumer('ws://' + window.location.host + '/cable');
+  const input = document.getElementById('message-input');
+  const sendBtn = document.getElementById('send-btn');
+  const statusDiv = document.getElementById('connection-status');
   
-  const chatChannel = cable.subscriptions.create('AgentChannel', {
-    agent_id: agentId
-  }, {
-    received: function(data) {
-      addMessage(data.message, 'agent');
-    }
-  });
+  let cable = null;
+  let chatChannel = null;
+
+  // Conectar a ActionCable
+  function connectWebSocket() {
+    statusDiv.innerHTML = '<span class="pill pill-warning">Conectando...</span>';
+    
+    cable = ActionCable.createConsumer('/cable');
+    
+    chatChannel = cable.subscriptions.create('ChatChannel', {
+      agent_id: agentId
+    }, {
+      connected: function() {
+        statusDiv.innerHTML = '<span class="pill pill-success">● Conectado (Tiempo Real)</span>';
+        console.log('Conectado al chat');
+      },
+      disconnected: function() {
+        statusDiv.innerHTML = '<span class="pill pill-danger">Desconectado</span>';
+      },
+      received: function(data) {
+        if (data.type === 'message') {
+          if (data.user_message) {
+            addMessage(data.user_message.content, 'user');
+          }
+          if (data.assistant_message) {
+            addMessage(data.assistant_message.content, 'agent');
+          }
+        }
+      }
+    });
+  }
 
   function addMessage(text, sender) {
     const div = document.createElement('div');
-    div.className = `message message-${sender}`;
-    div.innerHTML = `<strong>${sender === 'user' ? '👤 Tú:' : '🐕 ' + agentId + ':'}</strong><br>${text}`;
+    div.className = 'message message-' + sender;
+    const label = sender === 'user' ? '👤 Tú:' : '🐕 Spot:';
+    div.innerHTML = '<strong>' + label + '</strong><br>' + text;
     messagesDiv.appendChild(div);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
   }
@@ -49,10 +76,44 @@
     const text = input.value.trim();
     if (!text) return;
     
-    addMessage(text, 'user');
-    input.value = '';
+    input.disabled = true;
+    sendBtn.disabled = true;
     
-    chatChannel.perform('chat', { message: text });
+    // Usar WebSocket si está conectado, si no usar HTTP
+    if (chatChannel && statusDiv.innerHTML.includes('Conectado')) {
+      chatChannel.perform('chat', { message: text, agent_id: agentId });
+      // El mensaje se agregará cuando llegue la respuesta
+      addMessage(text, 'user');
+      input.value = '';
+      input.disabled = false;
+      sendBtn.disabled = false;
+      input.focus();
+    } else {
+      // Fallback a HTTP
+      fetch('/api/agents/' + agentId + '/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ message: text, channel: 'web' })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.assistant_message) {
+          addMessage(data.assistant_message.content, 'agent');
+        }
+      })
+      .catch(err => {
+        console.error('Error:', err);
+        addMessage('Error al enviar mensaje.', 'agent');
+      })
+      .finally(() => {
+        input.disabled = false;
+        sendBtn.disabled = false;
+        input.focus();
+      });
+    }
   }
 
   sendBtn.addEventListener('click', sendMessage);
@@ -60,6 +121,8 @@
     if (e.key === 'Enter') sendMessage();
   });
 
-  // Scroll to bottom
+  // Conectar al cargar
+  connectWebSocket();
+
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 </script>

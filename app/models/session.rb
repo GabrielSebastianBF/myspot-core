@@ -1,6 +1,7 @@
 class Session < ApplicationRecord
   belongs_to :agent
   has_many :tool_executions
+  has_many :messages
 
   validates :channel, presence: true
 

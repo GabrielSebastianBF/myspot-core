@@ -9,7 +9,6 @@ class CreateSessions < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :sessions, :agent_id
     add_index :sessions, :channel
   end
 end

@@ -7,7 +7,7 @@
     <%= csp_meta_tag %>
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload" %>
     
     <style>
       * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -64,6 +64,9 @@
         text-decoration: none;
         margin-bottom: 0.25rem;
         transition: all 0.2s;
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
       }
       
       .nav-item:hover, .nav-item.active {
@@ -268,8 +271,9 @@
         
         <nav>
           <a href="/" class="nav-item active">Dashboard</a>
-          <a href="/agents" class="nav-item">Agentes</a>
           <a href="/chat" class="nav-item">Chat</a>
+          <a href="/sessions" class="nav-item">Conversaciones</a>
+          <a href="/agents" class="nav-item">Agentes</a>
           <a href="/memories" class="nav-item">Memorias</a>
           <a href="/tools" class="nav-item">Herramientas</a>
           <a href="/executions" class="nav-item">Ejecuciones</a>
@@ -278,10 +282,17 @@
         
         <div style="margin-top: auto; padding-top: 1rem;">
           <div class="card" style="padding: 1rem;">
-            <div style="font-size: 0.75rem; color: var(--text-muted);">Estado</div>
-            <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
-              <span class="pill pill-success">● Online</span>
-            </div>
+            <% if session[:user_name] %>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Conectado como</div>
+              <div style="font-weight: bold; margin: 0.25rem 0;"><%= session[:user_name] %></div>
+              <a href="/logout" data-method="delete" style="font-size: 0.75rem; color: var(--primary);">Cerrar sesión</a>
+            <% else %>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Estado</div>
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                <span class="pill pill-success">● Online</span>
+              </div>
+              <a href="/login" style="font-size: 0.75rem; color: var(--primary); margin-top: 0.5rem; display: block;">Iniciar sesión</a>
+            <% end %>
           </div>
         </div>
       </aside>
@@ -289,9 +300,6 @@
       <main class="main">
         <header class="header">
           <h1 style="font-size: 1.25rem;"><%= yield(:title) %></h1>
-          <div style="display: flex; gap: 0.5rem;">
-            <button class="btn btn-primary">+ Nuevo</button>
-          </div>
         </header>
         
         <div class="content">

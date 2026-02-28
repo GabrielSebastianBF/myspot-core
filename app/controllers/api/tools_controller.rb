@@ -1,4 +1,5 @@
 class Api::ToolsController < ApplicationController
+  skip_before_action :verify_authenticity_token
   before_action :authenticate_agent!
   before_action :find_tool, only: [:execute, :approve, :reject]
 
@@ -91,11 +92,51 @@ class Api::ToolsController < ApplicationController
   # Ver historial de ejecuciones
   def executions
     executions = ToolExecution
-      .where(session: current_agent.sessions)
+      .joins(:session)
+      .where(sessions: { agent_id: current_agent.id })
       .order(created_at: :desc)
       .limit(100)
     
     render json: executions
+  end
+
+  # Aprobar ejecución específica por ID
+  def approve
+    execution = ToolExecution.find(params[:execution_id] || params[:id])
+    
+    unless execution.pending?
+      render json: { error: 'Execution already processed' }, status: :unprocessable_entity
+      return
+    end
+
+    execution.update!(
+      approved_by: current_agent.id,
+      status: 'approved'
+    )
+
+    # Ejecutar en background
+    result = execute_tool_async(execution)
+
+    render json: { 
+      execution_id: execution.id, 
+      status: 'executed', 
+      result: result 
+    }
+  end
+
+  # Rechazar ejecución específica por ID
+  def reject
+    execution = ToolExecution.find(params[:execution_id] || params[:id])
+    
+    execution.update!(
+      approved_by: current_agent.id,
+      status: 'rejected'
+    )
+
+    render json: { 
+      execution_id: execution.id, 
+      status: 'rejected' 
+    }
   end
 
   private
